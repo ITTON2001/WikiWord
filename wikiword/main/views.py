@@ -16,7 +16,7 @@ def main(request):
         )
 
     #検索ワード
-    page_py = wiki_wiki.page('織田信長')
+    page_py = wiki_wiki.page('みかん')
 
     #検索ワードを発見した時
     if page_py.exists():
