@@ -1,0 +1,30 @@
+<!-- base.html -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    <title>{% block title %}WikiWord{% endblock %}</title>
+    {% block header %}
+    {% endblock %}
+</head>
+<body>
+    <header>
+        <!-- 共通のヘッダー内容 -->
+        <nav>
+            <h1  href="/">WikiWord</h1>
+        </nav>
+    </header>
+
+    <div class="content">
+        {% block content %}
+        <!-- 各ページの内容 -->
+        {% endblock %}
+    </div>
+
+    <footer>
+        <!-- 共通のフッター内容 -->
+        <a href="/">WikiWord</a>
+    </footer>
+</body>
+</html>

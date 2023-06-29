@@ -1,26 +1,74 @@
 <!-- sentence.html -->
 
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block header %}
     <title>Result</title>
     <style>
         span {
             cursor: pointer;
         }
     </style>
-</head>
-<body>
-    {{ res|safe }}
+{% endblock %}
+
+{% block content %}
+
+    <div class = "main-text" id = "main-text">
+        {{ res|safe }}
+    </div>
 
     <script>
-        function handleClick() {
-            // クリックイベントの処理を記述する
-            // 例えば、クリックされた単語の情報を取得したり、他のアクションを実行したりできます
-            console.log('Clicked!');
+        //セキュリティのためクッキーを受け取る
+        function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
         }
-    </script>
-</body>
-</html>
+        return cookieValue;
+        }
 
+        // クリックイベントの処理
+        function handleClick() {  
+            // クリックされた言葉を取得する
+            var clickedWord = event.target.textContent;
+            console.log(clickedWord);
+
+            //FormDataオブジェクトを作成し、appendメソッドを使用して単語を追加
+            var form = new FormData();
+            form.append('word', clickedWord);
+
+            //fetch関数を使用して、POSTリクエストを送信
+            fetch('/maingame/', {
+                method: 'POST',
+                body: form,
+                //リクエストヘッダーにCSRFトークンを含めるために、'X-CSRFToken'ヘッダーを設定します。これにより、リクエストはCSRF保護を通過できる
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            //レスポンスをJSON形式で解析し、結果をコンソールに表示
+            .then(response => response.json())
+            .then(data => {
+                // 受け取ったデータを使用してHTMLを再構築する
+                document.getElementById('main-text').innerHTML = `
+                    <h1>${data.page_title}</h1>
+                    <p>${data.page_text}</p>
+                    <p>${data.res}</p>
+                `;
+            })
+            //エラーが発生した場合はコンソールにエラーメッセージを表示
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        </script>
+{% endblock %}
 
