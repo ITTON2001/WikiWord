@@ -1,22 +1,33 @@
 
-from django.shortcuts import render
+from django.shortcuts import render,redirect
+from django.http import HttpResponse
 from django import template
-import requests
-import wikipediaapi
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import requests, json
 
+page_py = None  # 初期値を設定
 
-def main(request):
-    print("main entered")
+def tittle(request):
+    return render(request, 'main/title.html')
 
-    #wikipediaapiのデータの言語を日本語化
+#wikipediaapiの処理
+def wikipediaapi(selected_word_receive):
+    import wikipediaapi
+    # wikipediaapiのデータの言語を日本語化
     wiki_wiki = wikipediaapi.Wikipedia(
         'ja',
-        #HTMLのタグ付きデータを受け取る
+        # HTMLのタグ付きデータを受け取る
         extract_format=wikipediaapi.ExtractFormat.HTML
-        )
+    )
 
-    #検索ワード
-    page_py = wiki_wiki.page('みかん')
+    # 検索ワード
+    page_py = wiki_wiki.page(selected_word_receive)    
+
+    # デフォルト値を設定
+    page_title = ''
+    page_text = ''
+    res = ''
 
     #検索ワードを発見した時
     if page_py.exists():
@@ -29,6 +40,9 @@ def main(request):
         for title in sorted(links.keys()):
             link_word.append(title)
 
+        print(link_word)
+
+        #文章生成プログラム
         result = []
         i = 0
         #リストの単語を調査する
@@ -58,7 +72,35 @@ def main(request):
     else:
         page_text = 'ページが見つかりませんでした。'
 
-        
+    return page_title,page_text,res
+
+@csrf_exempt
+def main(request):
+    print("main entered")        
+
+    if request.method == "POST":
+        clicked_word = request.POST.get("word", "")
+        print(clicked_word)  # コンソールに表示して確認する（デバッグ用）
+        #wikipediaapiで受け取ったデータを変数にそれぞれ入れる
+        page_title,page_text,res = wikipediaapi(clicked_word)
+        #print(res)
+        #javascriptへデータを送る
+        return JsonResponse({
+        'page_text': page_text, 
+        'page_title': page_title,
+        'res': res,
+        })
+    else:
+        #初期の文字を設定
+        def select_word():
+            selected_word = "みかん"
+            return selected_word
+
+        #初期の文字を受け取る
+        selected_word = select_word()
+        #wikipediaapiで受け取ったデータを変数にそれぞれ入れる
+        page_title,page_text,res = wikipediaapi(selected_word)
+    
     #main.htmlに情報を返す
     return render(request, 'main/main.html', {
         'page_text': page_text, 
@@ -67,7 +109,7 @@ def main(request):
         })
 
 """
-テスト用
+文章生成プログラムのテスト用
 def main(request):
     text = "私はみかんが好きです。しかしメロンも食べます。"
     words = ["みかん", "メロン"]
