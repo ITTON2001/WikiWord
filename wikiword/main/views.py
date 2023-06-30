@@ -4,7 +4,6 @@ from django.http import HttpResponse
 from django import template
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import requests, json
 
 page_py = None  # 初期値を設定
 
@@ -40,13 +39,15 @@ def wikipediaapi(selected_word_receive):
         for title in sorted(links.keys()):
             link_word.append(title)
 
-        print(link_word)
+        #print(link_word)
+        sorted_link_word = sorted(link_word, key=len, reverse=True)
+        #print(sorted_link_word)
 
         #文章生成プログラム
         result = []
         i = 0
         #リストの単語を調査する
-        for word in link_word:
+        for word in sorted_link_word:
             #リストの単語がpage_textにあるか調べ、その出現位置を代入する
             start_index = page_text.find(word)
             #あったとき
@@ -93,7 +94,46 @@ def main(request):
     else:
         #初期の文字を設定
         def select_word():
-            selected_word = "みかん"
+            import requests
+            #wikipediaからランダムに記事を受け取るAPI
+            S = requests.Session()
+            URL = "https://ja.wikipedia.org/w/api.php"
+            PARAMS = {
+                "action": "query",
+                "format": "json",
+                "list": "random",
+                "rnlimit": "1"
+            }
+
+            #初期の文字を選択する
+            redo = True
+            while redo:
+                #要求したデータを受け取る
+                R = S.get(url=URL, params=PARAMS)
+                DATA = R.json()
+
+                #データをランダムに受け取る
+                RANDOMS = DATA["query"]["random"]
+                for r in RANDOMS:
+                    print(r["title"])
+                    selected_word = r["title"]
+
+                    #記事ではないページがあるのでそれをランダムで受け取った場合受け取り直す
+                    if selected_word.startswith(("ノート", 
+                                                 "利用者", 
+                                                 "Category", 
+                                                 "Template",
+                                                 "Wikipedia",
+                                                 "portal",
+                                                 "ファイル",
+                                                 )):
+                    # 処理をやり直す（もしくはスキップする）
+                        print("やり直します")
+                        continue
+                    else:
+                        print("完了")
+                        redo = False
+            
             return selected_word
 
         #初期の文字を受け取る
