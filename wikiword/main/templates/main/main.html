@@ -13,9 +13,12 @@
 {% endblock %}
 
 {% block content %}
+    {{ goal_word }}
+    <input type="hidden" id="goal-word" value="{{ goal_word }}">
 
-    <div class = "main-text" id = "main-text">
-        {{ res|safe }}
+    <div class="main-text" id="main-text">
+        <h1>{{ page_title }}</h1>
+        <p>{{ res|safe }}</p>
     </div>
 
     <script>
@@ -57,12 +60,18 @@
             //レスポンスをJSON形式で解析し、結果をコンソールに表示
             .then(response => response.json())
             .then(data => {
+                let goalWord = document.getElementById('goal-word').value;
                 // 受け取ったデータを使用してHTMLを再構築する
-                document.getElementById('main-text').innerHTML = `
+                let html = '';
+                html += `
                     <h1>${data.page_title}</h1>
-                    <p>${data.page_text}</p>
                     <p>${data.res}</p>
                 `;
+                //目標に辿り着いたとき
+                if (goalWord === data.page_title) {
+                    html += "<p>正しい</p>";
+                }
+                document.getElementById('main-text').innerHTML = html;
             })
             //エラーが発生した場合はコンソールにエラーメッセージを表示
             .catch(error => {

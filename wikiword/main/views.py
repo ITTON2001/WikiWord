@@ -10,6 +10,57 @@ page_py = None  # 初期値を設定
 def tittle(request):
     return render(request, 'main/title.html')
 
+
+#初期の文字を設定
+def select_first_word():
+    import requests
+    #wikipediaからランダムに記事を受け取るAPI
+    S = requests.Session()
+    URL = "https://ja.wikipedia.org/w/api.php"
+    PARAMS = {
+        "action": "query",
+        "format": "json",
+        "list": "random",
+        "rnlimit": "1",
+        "rnnamespace": "0",
+    }
+
+    #要求したデータを受け取る
+    R = S.get(url=URL, params=PARAMS)
+    DATA = R.json()
+
+    #データをランダムに受け取る
+    RANDOMS = DATA["query"]["random"]
+    selected_word = RANDOMS[0]["title"]
+           
+    print("初期："+selected_word)
+    return selected_word
+
+#ゴールの文字を設定
+def select_goal_word():
+    import requests
+    #wikipediaからランダムに記事を受け取るAPI
+    S = requests.Session()
+    URL = "https://ja.wikipedia.org/w/api.php"
+    PARAMS = {
+        "action": "query",
+        "format": "json",
+        "list": "random",
+        "rnlimit": "1",
+        "rnnamespace": "0",
+    }
+
+    #要求したデータを受け取る
+    R = S.get(url=URL, params=PARAMS)
+    DATA = R.json()
+
+    #データをランダムに受け取る
+    RANDOMS = DATA["query"]["random"]
+    goal_word = RANDOMS[0]["title"]
+           
+    print("目標："+goal_word)
+    return goal_word
+        
 #wikipediaapiの処理
 def wikipediaapi(selected_word_receive):
     import wikipediaapi
@@ -77,13 +128,14 @@ def wikipediaapi(selected_word_receive):
 
 @csrf_exempt
 def main(request):
-    print("main entered")        
-
+    print("main entered")
+         
     if request.method == "POST":
         clicked_word = request.POST.get("word", "")
         print(clicked_word)  # コンソールに表示して確認する（デバッグ用）
         #wikipediaapiで受け取ったデータを変数にそれぞれ入れる
         page_title,page_text,res = wikipediaapi(clicked_word)
+        #print(page_title)
         #print(res)
         #javascriptへデータを送る
         return JsonResponse({
@@ -92,61 +144,21 @@ def main(request):
         'res': res,
         })
     else:
-        #初期の文字を設定
-        def select_word():
-            import requests
-            #wikipediaからランダムに記事を受け取るAPI
-            S = requests.Session()
-            URL = "https://ja.wikipedia.org/w/api.php"
-            PARAMS = {
-                "action": "query",
-                "format": "json",
-                "list": "random",
-                "rnlimit": "1"
-            }
-
-            #初期の文字を選択する
-            redo = True
-            while redo:
-                #要求したデータを受け取る
-                R = S.get(url=URL, params=PARAMS)
-                DATA = R.json()
-
-                #データをランダムに受け取る
-                RANDOMS = DATA["query"]["random"]
-                for r in RANDOMS:
-                    print(r["title"])
-                    selected_word = r["title"]
-
-                    #記事ではないページがあるのでそれをランダムで受け取った場合受け取り直す
-                    if selected_word.startswith(("ノート", 
-                                                 "利用者", 
-                                                 "Category", 
-                                                 "Template",
-                                                 "Wikipedia",
-                                                 "portal",
-                                                 "ファイル",
-                                                 )):
-                    # 処理をやり直す（もしくはスキップする）
-                        print("やり直します")
-                        continue
-                    else:
-                        print("完了")
-                        redo = False
-            
-            return selected_word
-
         #初期の文字を受け取る
-        selected_word = select_word()
+        selected_word = select_first_word()
+        #目標の文字を受け取る
+        goal_word = select_goal_word()
         #wikipediaapiで受け取ったデータを変数にそれぞれ入れる
         page_title,page_text,res = wikipediaapi(selected_word)
-    
+
     #main.htmlに情報を返す
     return render(request, 'main/main.html', {
         'page_text': page_text, 
         'page_title': page_title,
         'res': res,
+        'goal_word':goal_word,
         })
+
 
 """
 文章生成プログラムのテスト用
