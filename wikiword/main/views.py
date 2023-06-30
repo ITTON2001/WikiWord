@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 page_py = None  # 初期値を設定
 
+#タイトル画面
 def tittle(request):
     return render(request, 'main/title.html')
 
@@ -126,6 +127,7 @@ def wikipediaapi(selected_word_receive):
 
     return page_title,page_text,res
 
+#メインの画面
 @csrf_exempt
 def main(request):
     print("main entered")
