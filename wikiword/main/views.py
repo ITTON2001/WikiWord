@@ -4,11 +4,35 @@ from django.http import HttpResponse
 from django import template
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import openpyxl,random
 
-page_py = None  # 初期値を設定
+# 初期値を設定
+page_py = None  
+mode = None
 
 #タイトル画面
-def tittle(request):
+@csrf_exempt
+def title(request):
+    #モード選択用
+    if 'checkbox' in request.POST:
+        #チェックボックスのデータを受け取る
+        checkboxes = request.POST.getlist('checkbox')
+        print("モード選択")
+        print(checkboxes[0])
+
+        #モードに応じて目標の文字を受け取る
+        if checkboxes[0] == "1":           
+            #国モード
+            goal_word = easy_goal_word()
+        elif checkboxes[1] == "2":
+            #wikiモード
+            goal_word = select_goal_word()
+        else:
+            print("エラーです")
+
+        # セッションにgoal_wordを保存
+        request.session['goal_word'] = goal_word
+
     return render(request, 'main/title.html')
 
 
@@ -61,15 +85,38 @@ def select_goal_word():
            
     print("目標："+goal_word)
     return goal_word
-        
+
+#簡単な単語を設定
+def easy_goal_word():
+
+    #更新するExcelシート番号（左から0,1,2)
+    Sheet_Num = 0
+
+    """ Excelファイル読込(以下編集不要) """
+    #Excelファイル
+    EExcelFileName = "main/data/country.xlsx"
+    #ワークブック読込
+    workbook = openpyxl.load_workbook(EExcelFileName)
+    #ワークシート読込
+    select_worksheet = workbook.sheetnames[Sheet_Num]
+    worksheet = workbook[select_worksheet]
+    
+    # セルの範囲からデータを取得
+    cell_range = worksheet["B2:B260"]
+    data = [cell.value for row in cell_range for cell in row]
+    country_data = random.choice(data)
+    print("目標："+country_data)
+
+    return country_data
+
 #wikipediaapiの処理
 def wikipediaapi(selected_word_receive):
     import wikipediaapi
     # wikipediaapiのデータの言語を日本語化
     wiki_wiki = wikipediaapi.Wikipedia(
-        'ja',
-        # HTMLのタグ付きデータを受け取る
-        extract_format=wikipediaapi.ExtractFormat.HTML
+    language='ja',
+    extract_format=wikipediaapi.ExtractFormat.HTML,
+    user_agent='CoolBot/0.0 (https://example.org/coolbot/; coolbot@example.org)'
     )
 
     # 検索ワード
@@ -127,12 +174,14 @@ def wikipediaapi(selected_word_receive):
 
     return page_title,page_text,res
 
+
 #メインの画面
 @csrf_exempt
 def main(request):
-    print("main entered")
+    print("main entered")    
          
-    if request.method == "POST":
+    #単語クリック用
+    if 'word' in request.POST:
         clicked_word = request.POST.get("word", "")
         print(clicked_word)  # コンソールに表示して確認する（デバッグ用）
         #wikipediaapiで受け取ったデータを変数にそれぞれ入れる
@@ -146,10 +195,12 @@ def main(request):
         'res': res,
         })
     else:
+        # セッションからgoal_wordを取得
+        goal_word = request.session.get('goal_word')
+        print("受け取れたデータ："+goal_word)
+
         #初期の文字を受け取る
         selected_word = select_first_word()
-        #目標の文字を受け取る
-        goal_word = select_goal_word()
         #wikipediaapiで受け取ったデータを変数にそれぞれ入れる
         page_title,page_text,res = wikipediaapi(selected_word)
 
