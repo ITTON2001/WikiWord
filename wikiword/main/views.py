@@ -137,13 +137,15 @@ def wikipediaapi(selected_word_receive):
         link_word = []
         for title in sorted(links.keys()):
             link_word.append(title)
-
         #print(link_word)
+
+        #リンクのワードを長い順に並べる
         sorted_link_word = sorted(link_word, key=len, reverse=True)
         #print(sorted_link_word)
 
         #文章生成プログラム
         result = []
+        saved_words = []
         i = 0
         #リストの単語を調査する
         for word in sorted_link_word:
@@ -157,6 +159,12 @@ def wikipediaapi(selected_word_receive):
                 bef = page_text[:start_index]
                 #終了位置から後ろの文章をaftに入れる
                 aft = page_text[end_index:]
+
+                #リンクのワードを一時別の変数に保存
+                saved_words.append(word) 
+                #順番を与えたtaskを置く
+                word = "[task"+str(i)+"]"
+
                 #対象の言葉をspanタグに変更しbefとaftをつなげた文章をresultリストに追加する
                 result.append(bef + '<span style="cursor: pointer;" onclick="handleClick()">' + word + '</span>' + aft)
                 # 次の単語の検索に使用するため、更新された文章を調査対象の文章に設定する
@@ -167,6 +175,15 @@ def wikipediaapi(selected_word_receive):
         #言葉の調査が終わったとき
         if result:
             res = result[-1]  # 最後の要素を取得
+            
+            #taskの修正作業
+            #taskの順番に応じて保存したリンクのワードに置き換えていく
+            for i, word in enumerate(saved_words):
+                res = res.replace(f"[task{i}]", word)
+
+            #脚注・注釈・出典は取得できないため削除
+            res = res.replace("脚注", "").replace("注釈", "").replace("出典", "")
+            #print(res)
 
     #検索ワードが見つからなかった場合
     else:
@@ -197,7 +214,7 @@ def main(request):
     else:
         # セッションからgoal_wordを取得
         goal_word = request.session.get('goal_word')
-        print("受け取れたデータ："+goal_word)
+        print("受け取った目標データ："+goal_word)
 
         #初期の文字を受け取る
         selected_word = select_first_word()
@@ -216,24 +233,35 @@ def main(request):
 """
 文章生成プログラムのテスト用
 def main(request):
-    text = "私はみかんが好きです。しかしメロンも食べます。"
-    words = ["みかん", "メロン"]
+    text = "私はみかん会社が好きです。しかしメロンも食べます。でもみかんも食べます"
+    words = ["みかん会社","みかん", "メロン"]
 
     result = []
+    saved_words = []
     i = 0
     for word in words:
-        
         start_index = text.find(word)
         if start_index != -1:
             end_index = start_index + len(word)
             bef = text[:start_index]
             aft = text[end_index:]
+
+            
+            saved_words.append(word) 
+            word = "[task"+str(i)+"]"
+
             result.append(bef + '<span style="cursor: pointer;" onclick="handleClick()">' + word + '</span>' + aft)
             text = result[i]  # 次の単語の検索に使用するため、更新された部分文字列を代入
             i += 1
 
     if result:
         res = result[-1]  # 最後の要素を取得
+
+        j = 0
+        for i, word in enumerate(saved_words):
+            res = res.replace(f"[task{i}]", word)
+            j += 1
+        print(res)
 
     return render(request, 'main/main.html', {'res': res})
 """
