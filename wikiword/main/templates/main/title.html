@@ -27,6 +27,15 @@
             var checkboxValues = Array.from(checkboxes).map(function(checkbox) {
                 return checkbox.value;
             });
+
+            //チェックボックスの値が取得されなかったら
+            if (checkboxValues.length === 0) {
+                console.error('チェックボックスが選択されていません');
+                alert('ゲームモードを選択してください');
+                return;
+            }
+
+            //formDataにチェックボックスの値を追加
             formData.append('checkbox', checkboxValues);
 
             // フォームデータを送信
