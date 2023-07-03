@@ -165,7 +165,7 @@ def wikipediaapi(selected_word_receive):
                 #順番を与えたtaskを置く
                 word = "[task"+str(i)+"]"
 
-                #対象の言葉をspanタグに変更しbefとaftをつなげた文章をresultリストに追加する
+                #wordをspanタグで囲みbefとaftをつなげた文章をresultリストに追加する
                 result.append(bef + '<span style="cursor: pointer;" onclick="handleClick()">' + word + '</span>' + aft)
                 # 次の単語の検索に使用するため、更新された文章を調査対象の文章に設定する
                 page_text = result[i]  
