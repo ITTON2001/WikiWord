@@ -205,7 +205,7 @@ def main(request):
         page_title,page_text,res = wikipediaapi(clicked_word)
         #print(page_title)
         #print(res)
-        #javascriptへデータを送る
+        #javascriptへデータを返す
         return JsonResponse({
         'page_text': page_text, 
         'page_title': page_title,

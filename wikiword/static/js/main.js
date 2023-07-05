@@ -17,8 +17,8 @@ function getCookie(name) {
 // クリックイベントの処理
 function handleClick() {
     // クリックされた言葉を取得する
-    var clickedWord = event.target.textContent;
-    console.log(clickedWord);
+    var clickedWord =  event.target.textContent;
+    console.log("クリックしたワード：" + clickedWord);
 
     //FormDataオブジェクトを作成し、appendメソッドを使用して単語を追加
     var form = new FormData();
@@ -33,7 +33,7 @@ function handleClick() {
             'X-CSRFToken': getCookie('csrftoken')
         }
     })
-        //レスポンスをJSON形式で解析し、結果をコンソールに表示
+        //レスポンスをJSON形式で解析
         .then(response => response.json())
         .then(data => {
             let goalWord = document.getElementById('goal-word').value;
