@@ -23,10 +23,10 @@ def title(request):
         #モードに応じて目標の文字を受け取る
         if checkboxes[0] == "1":           
             #国モード
-            goal_word = easy_goal_word()
+            goal_word = select_goal_word_Mode_Country()
         elif checkboxes[1] == "2":
             #wikiモード
-            goal_word = select_goal_word()
+            goal_word = select_goal_word_Mode_wiki()
         else:
             print("エラーです")
 
@@ -61,8 +61,8 @@ def select_first_word():
     print("初期："+selected_word)
     return selected_word
 
-#ゴールの文字を設定
-def select_goal_word():
+#ゴールの文字を設定(wikiモード)
+def select_goal_word_Mode_wiki():
     import requests
     #wikipediaからランダムに記事を受け取るAPI
     S = requests.Session()
@@ -86,8 +86,8 @@ def select_goal_word():
     print("目標："+goal_word)
     return goal_word
 
-#簡単な単語を設定
-def easy_goal_word():
+#国の単語を設定
+def select_goal_word_Mode_Country():
 
     #更新するExcelシート番号（左から0,1,2)
     Sheet_Num = 0

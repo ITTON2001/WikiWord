@@ -2,18 +2,24 @@
 {% load static %}
 
 {% block header %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/title.css' %}">
     <script src="{% static 'js/title.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-    <form id="start" action="" method="POST">
-        <a href="#" onclick="submitForm(event)">ゲーム開始</a>
-        <label>
-            <input type="checkbox" id="countrymode" name="checkbox"  value="1" onclick="toggleCheckboxes(this)">国モード
-        </label>
-        <label>
-            <input type="checkbox" id="wikimode" name="checkbox" value="2" onclick="toggleCheckboxes(this)">wikiモード
-        </label>
-    </form>
+    <div class="title_panel">
+        <form id="start" action="" method="POST">
+            <div  class="start_button btn-shine">
+                <a href="#" onclick="submitForm(event)">ゲーム開始</a>
+            </div>
+            
+            <label>
+                <input type="checkbox" id="countrymode" name="checkbox"  value="1" onclick="toggleCheckboxes(this)">国モード
+            </label>
+            <label>
+                <input type="checkbox" id="wikimode" name="checkbox" value="2" onclick="toggleCheckboxes(this)">wikiモード
+            </label>
+        </form>
+    </div>
 {% endblock %}
 

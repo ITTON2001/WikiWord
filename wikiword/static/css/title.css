@@ -1,0 +1,53 @@
+.title_panel{
+    width: 100%;
+
+}
+
+.start_button a {
+    display: inline-block;
+    padding: 10px 20px; /* パディングを調整してボタンのサイズを変更できます */
+    background-color: #3498db; /* ボタンの背景色を設定 */
+    color: #fff; /* テキストの色を設定 */
+    text-decoration: none;
+    border: none;
+    border-radius: 5px; /* 角丸の半径を調整してボタンの角を丸くできます */
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+  
+.start_button a:hover {
+    background-color: #2980b9; /* マウスがボタンの上にあるときの背景色を変更 */
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+}
+
+/*** ボタンを光らせる ***/
+.btn-shine a{
+    position: relative; /*疑似要素の起点*/
+    overflow: hidden; /*範囲外の光を隠す*/
+}
+  
+/*** ボタンをキラッとさせる ***/
+.btn-shine a:hover:after{
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 10%;
+    height: 150%;
+    background: #fff; /*光の色*/
+    transform: rotate(45deg); /*45度傾ける*/
+    animation: reflect 1s ease-in-out;
+  /*animation: アニメ名｜光る周期｜動き方｜ループ*/
+}
+  
+/*** 光のアニメーション ***/
+@keyframes reflect{
+    0%{
+      transform: rotate(45deg) scale(0);
+      opacity: 1;
+    }
+    100%{
+      transform: rotate(45deg) scale(100);
+      opacity: 0;
+    }
+}
