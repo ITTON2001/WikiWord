@@ -16,17 +16,17 @@ def title(request):
     #モード選択用
     if 'checkbox' in request.POST:
         #チェックボックスのデータを受け取る
-        checkboxes = request.POST.getlist('checkbox')
+        checkedbox = request.POST.get('checkbox')
         print("モード選択")
-        print(checkboxes[0])
+        print(checkedbox)
 
         #モードに応じて目標の文字を受け取る
-        if checkboxes[0] == "1":           
+        if checkedbox == "1":           
             #国モード
             goal_word = select_goal_word_Mode_Country()
-        elif checkboxes[1] == "2":
+        elif checkedbox == "2":
             #wikiモード
-            goal_word = select_goal_word_Mode_wiki()
+            goal_word = select_word()
         else:
             print("エラーです")
 
@@ -36,8 +36,9 @@ def title(request):
     return render(request, 'main/title.html')
 
 
-#初期の文字を設定
-def select_first_word():
+#wiki内のワードを取得する
+#初期・wikiモードで使う
+def select_word():
     import requests
     #wikipediaからランダムに記事を受け取るAPI
     S = requests.Session()
@@ -58,33 +59,8 @@ def select_first_word():
     RANDOMS = DATA["query"]["random"]
     selected_word = RANDOMS[0]["title"]
            
-    print("初期："+selected_word)
+    #print("初期："+selected_word)
     return selected_word
-
-#ゴールの文字を設定(wikiモード)
-def select_goal_word_Mode_wiki():
-    import requests
-    #wikipediaからランダムに記事を受け取るAPI
-    S = requests.Session()
-    URL = "https://ja.wikipedia.org/w/api.php"
-    PARAMS = {
-        "action": "query",
-        "format": "json",
-        "list": "random",
-        "rnlimit": "1",
-        "rnnamespace": "0",
-    }
-
-    #要求したデータを受け取る
-    R = S.get(url=URL, params=PARAMS)
-    DATA = R.json()
-
-    #データをランダムに受け取る
-    RANDOMS = DATA["query"]["random"]
-    goal_word = RANDOMS[0]["title"]
-           
-    print("目標："+goal_word)
-    return goal_word
 
 #国の単語を設定
 def select_goal_word_Mode_Country():
@@ -160,7 +136,7 @@ def wikipediaapi(selected_word_receive):
                 #終了位置から後ろの文章をaftに入れる
                 aft = page_text[end_index:]
 
-                #リンクのワードを一時別の変数に保存
+                #リンクのワードを一時別のリストに保存
                 saved_words.append(word) 
                 #順番を与えたtaskを置く
                 word = "[task"+str(i)+"]"
@@ -211,13 +187,14 @@ def main(request):
         'page_title': page_title,
         'res': res,
         })
+    #スタートゲーム用
     else:
         # セッションからgoal_wordを取得
         goal_word = request.session.get('goal_word')
         print("受け取った目標データ："+goal_word)
 
         #初期の文字を受け取る
-        selected_word = select_first_word()
+        selected_word = select_word()
         #wikipediaapiで受け取ったデータを変数にそれぞれ入れる
         page_title,page_text,res = wikipediaapi(selected_word)
 

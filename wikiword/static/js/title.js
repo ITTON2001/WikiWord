@@ -6,20 +6,18 @@ function submitForm(event) {
     var formData = new FormData(form);
 
     // チェックボックスの値を取得
-    var checkboxes = document.querySelectorAll('input[name="checkbox"]:checked');
-    var checkboxValues = Array.from(checkboxes).map(function(checkbox) {
-        return checkbox.value;
-    });
+    var checkbox = document.querySelector('input[name="checkbox"]:checked');
+    var checkboxValue = checkbox ? checkbox.value : null
 
     //チェックボックスの値が取得されなかったら
-    if (checkboxValues.length === 0) {
+    if (checkboxValue === null) {
         console.error('チェックボックスが選択されていません');
         alert('ゲームモードを選択してください');
         return;
     }
 
     //formDataにチェックボックスの値を追加
-    formData.append('checkbox', checkboxValues);
+    formData.append('checkbox', checkboxValue);
 
     // フォームデータを送信
     fetch(form.action, {
