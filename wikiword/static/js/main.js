@@ -36,7 +36,7 @@ function handleClick() {
         //レスポンスをJSON形式で解析
         .then(response => response.json())
         .then(data => {
-            let goalWord = document.getElementById('goal-word').value;
+            let goalWord = document.getElementById('goal-word').getAttribute('data-goal-word');
             // 受け取ったデータを使用してHTMLを再構築する
             let html = '';
             html += `

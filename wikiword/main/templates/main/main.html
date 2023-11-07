@@ -9,8 +9,9 @@
 {% endblock %}
 
 {% block content %}
-    {{ goal_word }}
-    <input type="hidden" id="goal-word" value="{{ goal_word }}">
+    <div id="goal-word" data-goal-word="{{ goal_word }}">
+        {{ goal_word }}
+    </div>
 
     <div class="main-text" id="main-text">
         <h1>{{ page_title }}</h1>
